@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CalcuPrint - DGraphix</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #000000; /* Fondo negro */
+            color: #ffffff; /* Texto blanco */
+        }
+
+        .container {
+            background: #ffffff; /* Fondo blanco */
+            color: #000000; /* Texto negro */
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            width: 90%;
+            max-width: 500px;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        h1 {
+            font-size: 24px;
+            text-align: center;
+            margin-bottom: 20px;
+            color: #000000; /* Color negro para el título */
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            font-size: 14px;
+            margin-bottom: 5px;
+            color: #000000;
+        }
+
+        input, select, button {
+            font-size: 16px;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        button {
+            background-color: #000000; /* Fondo negro para el botón */
+            color: #ffffff; /* Texto blanco en el botón */
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #333333; /* Fondo gris oscuro cuando el botón es presionado */
+        }
+
+        .results {
+            margin-top: 20px;
+            font-size: 16px;
+            color: #000000;
+        }
+
+        .results div {
+            margin-bottom: 10px;
+        }
+
+        /* Estilos responsivos */
+        @media (max-width: 768px) {
+            .container {
+                width: 90%;
+                padding: 15px;
+            }
+
+            h1 {
+                font-size: 22px;
+            }
+
+            label, input, select, button {
+                font-size: 14px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                width: 95%;
+            }
+
+            h1 {
+                font-size: 20px;
+            }
+
+            label, input, select, button {
+                font-size: 12px;
+            }
+        }
+
+        /* Cambios de diseño para pantallas más grandes */
+        @media (min-width: 1024px) {
+            .container {
+                max-width: 600px;
+            }
+
+            h1 {
+                font-size: 28px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>CalcuPrint - DGraphix</h1>
+        <form id="calculationForm">
+            <label for="width">Ancho:</label>
+            <input type="number" id="width" required>
+
+            <label for="height">Alto:</label>
+            <input type="number" id="height" required>
+
+            <label for="unit">Unidad:</label>
+            <select id="unit">
+                <option value="cm">cm</option>
+                <option value="inches" selected>Pulgadas</option>
+                <option value="feet">Pies</option>
+                <option value="meters">Metros</option>
+                <option value="yards">Yardas</option>
+            </select>
+
+            <label for="materialCost">Costo de Material por Unidad:</label>
+            <input type="number" id="materialCost" required>
+
+            <label for="energyCost">Costo de Energía:</label>
+            <input type="number" id="energyCost" required>
+
+            <label for="laborCost">Costo de Mano de Obra:</label>
+            <input type="number" id="laborCost" required>
+
+            <label for="margin">Margen (%):</label>
+            <input type="number" id="margin" required>
+
+            <button type="button" onclick="calculateCost()">Calcular</button>
+        </form>
+
+        <div class="results" id="results">
+            <div id="baseCost">Costo Base: L0.00</div>
+            <div id="totalCost">Costo Total: L0.00</div>
+            <div id="retailPrice">Precio de Venta Sugerido: L0.00</div>
+            <div id="wholesalePrice">Precio Mayorista: L0.00</div>
+        </div>
+    </div>
+
+    <script>
+        function calculateCost() {
+            const width = parseFloat(document.getElementById('width').value);
+            const height = parseFloat(document.getElementById('height').value);
+            const unit = document.getElementById('unit').value;
+            const materialCost = parseFloat(document.getElementById('materialCost').value);
+            const energyCost = parseFloat(document.getElementById('energyCost').value);
+            const laborCost = parseFloat(document.getElementById('laborCost').value);
+            const margin = parseFloat(document.getElementById('margin').value);
+
+            const conversionFactors = {
+                "cm": 0.393701,
+                "inches": 1,
+                "feet": 12,
+                "meters": 39.3701,
+                "yards": 36
+            };
+
+            if (!conversionFactors[unit]) {
+                alert("Unidad seleccionada no válida.");
+                return;
+            }
+
+            const widthInches = width * conversionFactors[unit];
+            const heightInches = height * conversionFactors[unit];
+
+            const areaInSquareInches = widthInches * heightInches;
+            const baseCost = (areaInSquareInches / 144) * materialCost;
+            const totalCost = baseCost + energyCost + laborCost;
+            const retailPrice = totalCost * (1 + margin / 100);
+            const wholesalePrice = totalCost * 1.2;
+
+            document.getElementById('baseCost').innerText = `Costo Base: L${baseCost.toFixed(2)}`;
+            document.getElementById('totalCost').innerText = `Costo Total: L${totalCost.toFixed(2)}`;
+            document.getElementById('retailPrice').innerText = `Precio de Venta Sugerido: L${retailPrice.toFixed(2)}`;
+            document.getElementById('wholesalePrice').innerText = `Precio Mayorista: L${wholesalePrice.toFixed(2)}`;
+        }
+    </script>
+</body>
+</html>
